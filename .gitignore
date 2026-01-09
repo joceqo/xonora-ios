@@ -1,0 +1,49 @@
+# Xcode
+.DS_Store
+*/.DS_Store
+**/.DS_Store
+*.swp
+*~.nib
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+project.xcworkspace/
+xcuserdata/
+
+# Build generated
+build/
+DerivedData/
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+# CocoaPods
+Pods/
+*.xcworkspace
+
+# Swift PM
+.swiftpm/
+
+# Local configuration
+.claude/
+CLAUDE_CODE_PROMPT.md
+CLAUDE.md
+GEMINI.md
+PLANS.md
+update.md
+build_*.log
+docs.html
+logo.png
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# Misc
+*.ipa
+*.dSYM.zip
+*.dSYM
