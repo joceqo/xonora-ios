@@ -47,3 +47,10 @@ fastlane/test_output
 *.ipa
 *.dSYM.zip
 *.dSYM
+Exported/
+OldXonora/
+Packaging.log
+*.zip
+.gemini/
+Xonora.xcarchive/
+build.log
