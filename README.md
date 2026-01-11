@@ -2,18 +2,55 @@
 
 Xonora is a high-performance, native iOS client for Music Assistant. Built with SwiftUI and the custom **SendspinKit** audio engine, it delivers gapless, synchronized, and high-fidelity playback from your self-hosted server directly to your iOS device.
 
+## Screenshots
+
+<p align="center">
+  <img src="V1.0.3 Screenshots/LoginView.PNG" width="200" alt="Login Screen"/>
+  <img src="V1.0.3 Screenshots/SettingsView.PNG" width="200" alt="Settings"/>
+  <img src="V1.0.3 Screenshots/Library View_Album.PNG" width="200" alt="Library View"/>
+</p>
+
+<p align="center">
+  <img src="V1.0.3 Screenshots/AlbumView.PNG" width="200" alt="Album Detail"/>
+  <img src="V1.0.3 Screenshots/NowPlayingView.PNG" width="200" alt="Now Playing"/>
+  <img src="V1.0.3 Screenshots/SearchView.PNG" width="200" alt="Search"/>
+</p>
+
 ## Release Notes
+
+### Version 1.0.3
+
+This release focuses on library management, network stability, and bug fixes.
+
+#### Library Features
+- **Songs Tab:** Added a dedicated "Songs" tab in the Library to view individual tracks separately from albums
+- **Track Management:** You can now add individual tracks to your library and view them independently
+  - Adding a single track shows only that track in the Songs section
+  - Opening the album from a track displays all tracks in the album, not just the ones in your library
+  - This behavior matches how Music Assistant handles library items on the server side (applies when using providers like Apple Music)
+- **Improved Track Display:** Track numbers now appear before artwork in the Songs view for easier navigation
+- **Fixed Library Playback:** Resolved issues that prevented playing random tracks from the Library
+
+#### API & Network Improvements
+- **Music Assistant API:** Fixed incorrect API commands (now using `music/library/add_item` and `music/favorites/add_item`)
+- **Network Stability:** Eliminated "Reporter disconnected" errors by implementing a shared URLSession with connection pooling
+- **Timeout Handling:** Increased WebSocket timeout from 5 to 30 seconds for more reliable connections
+- **HTTP/3 Disable:** Disabled QUIC protocol for local servers to prevent packet parsing errors
+- **Reduced Stuttering:** Optimized image loading and network requests to eliminate audio interruptions during playback
+
+#### UI & UX Fixes
+- **Full-Screen Views:** Fixed black rectangles that appeared at the top and bottom of library scroll views
+- **Dynamic Version Display:** App version now reads directly from bundle info
+- **Metadata Caching:** Added track caching with 1-hour expiry for faster library loading
+
+#### Technical Improvements
+- **Color Management:** Resolved duplicate color definition build errors
+- **URLSession Optimization:** Single shared session with ephemeral configuration and 4 concurrent connections per host
+- **Memory Efficiency:** Improved image cache with better resource management
 
 ### Version 1.0.1 alpha
 
 This release introduces significant architectural improvements to the audio subsystem and network layer.
-
-<img width="322" height="699" alt="IMG_8065" src="https://github.com/user-attachments/assets/57db750d-92a5-4908-9f9e-045c1c1a4210" />
-<img width="322" height="699" alt="IMG_8066" src="https://github.com/user-attachments/assets/2d45cc0d-107e-48f4-815f-ab7485ed1713" />
-<img width="322" height="699" alt="IMG_8068" src="https://github.com/user-attachments/assets/a9fac1f7-61d0-4e66-b331-17b2f8825479" />
-<img width="322" height="699" alt="IMG_8067" src="https://github.com/user-attachments/assets/038b5885-b75d-4ae8-b03c-681951380e89" />
-<img width="322" height="699" alt="IMG_8070" src="https://github.com/user-attachments/assets/f4d0728b-584c-4a61-93ed-f0f8b2433e80" />
-   
 
 #### Audio Engine (SendspinKit)
 - **New Audio Architecture:** Fully integrated **SendspinKit**, a custom audio engine built on `AVAudioEngine` and `Accelerate` (vDSP).
@@ -32,7 +69,8 @@ This release introduces significant architectural improvements to the audio subs
 
 - **Native Interface:** A clean, Apple Music-inspired UI built entirely with SwiftUI.
 - **Sendspin Streaming:** Stream lossless PCM/FLAC audio directly from your Music Assistant server.
-- **Library Management:** Browse albums, artists, and audiobooks with search capabilities.
+- **CarPlay Support:** Full CarPlay integration for browsing and playback in the vehicle.
+- **Library Management:** Browse albums, artists, songs, and playlists with search capabilities and individual track management.
 - **Background Playback:** Robust background audio support with Lock Screen and Control Center integration (`MPNowPlayingInfoCenter`).
 - **Real-time Updates:** Persistent WebSocket connection for instant state synchronization across devices.
 
