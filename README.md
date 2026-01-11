@@ -8,6 +8,13 @@ Xonora is a high-performance, native iOS client for Music Assistant. Built with 
 
 This release introduces significant architectural improvements to the audio subsystem and network layer.
 
+<img width="645" height="1398" alt="IMG_8065" src="https://github.com/user-attachments/assets/57db750d-92a5-4908-9f9e-045c1c1a4210" />
+<img width="645" height="1398" alt="IMG_8066" src="https://github.com/user-attachments/assets/2d45cc0d-107e-48f4-815f-ab7485ed1713" />
+<img width="645" height="1398" alt="IMG_8068" src="https://github.com/user-attachments/assets/a9fac1f7-61d0-4e66-b331-17b2f8825479" />
+<img width="645" height="1398" alt="IMG_8067" src="https://github.com/user-attachments/assets/038b5885-b75d-4ae8-b03c-681951380e89" />
+<img width="645" height="1398" alt="IMG_8070" src="https://github.com/user-attachments/assets/f4d0728b-584c-4a61-93ed-f0f8b2433e80" />
+   
+
 #### Audio Engine (SendspinKit)
 - **New Audio Architecture:** Fully integrated **SendspinKit**, a custom audio engine built on `AVAudioEngine` and `Accelerate` (vDSP).
 - **Stutter-Free Playback:** Implemented a new timestamp-based audio scheduler with a tight 5ms processing loop and a 400ms jitter buffer window.
@@ -25,7 +32,6 @@ This release introduces significant architectural improvements to the audio subs
 
 - **Native Interface:** A clean, Apple Music-inspired UI built entirely with SwiftUI.
 - **Sendspin Streaming:** Stream lossless PCM/FLAC audio directly from your Music Assistant server.
-- **CarPlay Support:** Full CarPlay integration for browsing and playback in the vehicle.
 - **Library Management:** Browse albums, artists, and audiobooks with search capabilities.
 - **Background Playback:** Robust background audio support with Lock Screen and Control Center integration (`MPNowPlayingInfoCenter`).
 - **Real-time Updates:** Persistent WebSocket connection for instant state synchronization across devices.
