@@ -12,7 +12,7 @@ class LibraryViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var searchQuery = ""
-    @Published var searchResults: (albums: [Album], artists: [Artist], tracks: [Track]) = ([], [], [])
+    @Published var searchResults: (albums: [Album], artists: [Artist], tracks: [Track], playlists: [Playlist]) = ([], [], [], [])
     @Published var isSearching = false
     private var isNetworkFetching = false
 
@@ -29,13 +29,13 @@ class LibraryViewModel: ObservableObject {
 
     private func setupSearchDebounce() {
         $searchQuery
-            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] query in
                 guard let self = self else { return }
                 if query.isEmpty {
                     Task {
-                        self.searchResults = ([], [], [])
+                        self.searchResults = ([], [], [], [])
                         self.isSearching = false
                     }
                 } else {
@@ -177,6 +177,9 @@ class LibraryViewModel: ObservableObject {
         if let index = searchResults.tracks.firstIndex(where: { $0.uri == uri }) {
             searchResults.tracks[index].favorite = favorite
         }
+        if let index = searchResults.playlists.firstIndex(where: { $0.uri == uri }) {
+            searchResults.playlists[index].favorite = favorite
+        }
     }
 
     func loadAlbumTracks(album: Album) async throws -> [Track] {
@@ -251,7 +254,7 @@ class LibraryViewModel: ObservableObject {
 
     func clearSearch() {
         searchQuery = ""
-        searchResults = ([], [], [])
+        searchResults = ([], [], [], [])
         isSearching = false
     }
 
