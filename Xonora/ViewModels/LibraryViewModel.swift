@@ -9,7 +9,9 @@ class LibraryViewModel: ObservableObject {
     @Published var artists: [Artist] = []
     @Published var playlists: [Playlist] = []
     @Published var tracks: [Track] = []
+    @Published var recentlyPlayed: [RecentlyPlayedItem] = []
     @Published var isLoading = false
+    @Published var isLoadingRecent = false
     @Published var errorMessage: String?
     @Published var searchQuery = ""
     @Published var searchResults: (albums: [Album], artists: [Artist], tracks: [Track], playlists: [Playlist]) = ([], [], [], [])
@@ -265,5 +267,26 @@ class LibraryViewModel: ObservableObject {
 
     func clearCache() async {
         await cache.clearAll()
+    }
+
+    // MARK: - Recently Played
+
+    func loadRecentlyPlayed() async {
+        guard !isLoadingRecent else { return }
+        isLoadingRecent = true
+
+        do {
+            let items = try await client.fetchRecentlyPlayed(limit: 20)
+            self.recentlyPlayed = items
+            print("[LibraryViewModel] Loaded \(items.count) recently played items")
+        } catch {
+            print("[LibraryViewModel] Failed to load recently played: \(error)")
+        }
+
+        isLoadingRecent = false
+    }
+
+    func refreshRecentlyPlayed() async {
+        await loadRecentlyPlayed()
     }
 }

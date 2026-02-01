@@ -422,6 +422,30 @@ class XonoraClient: NSObject, ObservableObject {
         }.value
     }
 
+    /// Fetches recently played items from the server
+    /// - Parameters:
+    ///   - limit: Maximum number of items to return (default: 20)
+    ///   - mediaTypes: Optional array of media types to filter (e.g., ["track", "album"])
+    /// - Returns: Array of RecentlyPlayedItem
+    func fetchRecentlyPlayed(limit: Int = 20, mediaTypes: [String]? = nil) async throws -> [RecentlyPlayedItem] {
+        var args: [String: Any] = ["limit": limit]
+        if let types = mediaTypes {
+            args["media_types"] = types
+        }
+
+        let data = try await sendCommand("music/recently_played_items", args: args)
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let result = json["result"] as? [[String: Any]] else {
+            print("[XonoraClient] No recently played items in response")
+            return []
+        }
+
+        print("[XonoraClient] Received \(result.count) recently played items")
+
+        let resultData = try JSONSerialization.data(withJSONObject: result)
+        return (try? JSONDecoder().decode([RecentlyPlayedItem].self, from: resultData)) ?? []
+    }
+
     func fetchAlbumTracks(albumId: String, provider: String) async throws -> [Track] {
         let data = try await sendCommand("music/albums/album_tracks", args: ["item_id": albumId, "provider_instance_id_or_domain": provider])
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any], let result = json["result"] as? [[String: Any]] else { return [] }

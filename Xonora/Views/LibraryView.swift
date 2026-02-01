@@ -37,10 +37,12 @@ struct LibraryView: View {
             .background(Color(UIColor.systemGroupedBackground))
             .refreshable {
                 await libraryViewModel.loadLibrary(forceRefresh: true)
+                await libraryViewModel.loadRecentlyPlayed()
             }
         }
         .task {
             await libraryViewModel.loadLibrary()
+            await libraryViewModel.loadRecentlyPlayed()
             isInitialLoad = false
         }
         .onChange(of: playerViewModel.isConnected) { oldValue, connected in
@@ -54,6 +56,31 @@ struct LibraryView: View {
 
     private var libraryContent: some View {
         List {
+            // Recently Played Section
+            if !libraryViewModel.recentlyPlayed.isEmpty {
+                Section {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(spacing: 12) {
+                            ForEach(libraryViewModel.recentlyPlayed) { item in
+                                RecentlyPlayedCard(item: item)
+                            }
+                        }
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 8)
+                    }
+                    .listRowInsets(EdgeInsets(top: 0, leading: 12, bottom: 0, trailing: 12))
+                } header: {
+                    HStack {
+                        Text("Recently Played")
+                        Spacer()
+                        if libraryViewModel.isLoadingRecent {
+                            ProgressView()
+                                .controlSize(.small)
+                        }
+                    }
+                }
+            }
+
             // Library Categories Section
             Section {
                 NavigationLink {
@@ -433,6 +460,112 @@ struct ArtistsListView: View {
         .navigationTitle("Artists")
         .navigationBarTitleDisplayMode(.large)
         .background(Color(UIColor.systemGroupedBackground))
+    }
+}
+
+// MARK: - Recently Played Card
+
+struct RecentlyPlayedCard: View {
+    let item: RecentlyPlayedItem
+    @ObservedObject private var playerManager = PlayerManager.shared
+
+    var body: some View {
+        Button {
+            playItem()
+        } label: {
+            VStack(alignment: .leading, spacing: 6) {
+                // Artwork
+                ZStack(alignment: .bottomTrailing) {
+                    CachedAsyncImage(url: XonoraClient.shared.getImageURL(for: item.imageUrl, size: .small)) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.gray.opacity(0.3))
+                            .overlay {
+                                Image(systemName: iconForMediaType)
+                                    .font(.title2)
+                                    .foregroundColor(.gray)
+                            }
+                    }
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 120, height: 120)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+
+                    // Media type badge
+                    mediaTypeBadge
+                        .padding(6)
+                }
+
+                // Title and artist
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(item.name)
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .lineLimit(1)
+                        .foregroundColor(.primary)
+
+                    if let artist = item.artist {
+                        Text(artist)
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                .frame(width: 120, alignment: .leading)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var iconForMediaType: String {
+        switch item.mediaType {
+        case "track": return "music.note"
+        case "album": return "square.stack"
+        case "playlist": return "music.note.list"
+        case "artist": return "person.fill"
+        default: return "music.note"
+        }
+    }
+
+    private var mediaTypeBadge: some View {
+        Group {
+            switch item.mediaType {
+            case "track":
+                Image(systemName: "music.note")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(4)
+                    .background(Color.red.opacity(0.9))
+                    .clipShape(Circle())
+            case "album":
+                Image(systemName: "square.stack.fill")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(4)
+                    .background(Color.purple.opacity(0.9))
+                    .clipShape(Circle())
+            case "playlist":
+                Image(systemName: "music.note.list")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(4)
+                    .background(Color.orange.opacity(0.9))
+                    .clipShape(Circle())
+            default:
+                EmptyView()
+            }
+        }
+    }
+
+    private func playItem() {
+        Task {
+            do {
+                // Play the item via Music Assistant
+                try await XonoraClient.shared.playMedia(uris: [item.uri], queueOption: "play")
+                print("[RecentlyPlayedCard] Playing: \(item.name)")
+            } catch {
+                print("[RecentlyPlayedCard] Failed to play: \(error)")
+            }
+        }
     }
 }
 

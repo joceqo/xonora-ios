@@ -18,6 +18,7 @@
 		AAA00008 /* TrackRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB00008 /* TrackRow.swift */; };
 		AAA00009 /* PlayerControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB00009 /* PlayerControls.swift */; };
 		AAA00010 /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB00010 /* Track.swift */; };
+		AAA00050 /* RecentlyPlayedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB00050 /* RecentlyPlayedItem.swift */; };
 		AAA00011 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB00011 /* Album.swift */; };
 		AAA00012 /* Artist.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB00012 /* Artist.swift */; };
 		AAA00013 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB00013 /* Player.swift */; };
@@ -131,6 +132,7 @@
 		BBB00026 /* MetadataCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCache.swift; sourceTree = "<group>"; };
 		BBB00027 /* ImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCache.swift; sourceTree = "<group>"; };
 		BBB00028 /* Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playlist.swift; sourceTree = "<group>"; };
+		BBB00050 /* RecentlyPlayedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyPlayedItem.swift; sourceTree = "<group>"; };
 		BBB00029 /* PlaylistDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailView.swift; sourceTree = "<group>"; };
 		BBB00030 /* PlaylistGridItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistGridItem.swift; sourceTree = "<group>"; };
 		BBB00031 /* Color+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Extensions.swift"; sourceTree = "<group>"; };
@@ -451,6 +453,7 @@
 				BBB00012 /* Artist.swift */,
 				BBB00013 /* Player.swift */,
 				BBB00028 /* Playlist.swift */,
+				BBB00050 /* RecentlyPlayedItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -589,6 +592,7 @@
 				AAA00011 /* Album.swift in Sources */,
 				AAA00012 /* Artist.swift in Sources */,
 				AAA00013 /* Player.swift in Sources */,
+				AAA00050 /* RecentlyPlayedItem.swift in Sources */,
 				AAA00014 /* XonoraClient.swift in Sources */,
 				AAA00015 /* PlayerManager.swift in Sources */,
 				AAA00016 /* LibraryViewModel.swift in Sources */,
