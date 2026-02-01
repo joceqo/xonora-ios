@@ -2,13 +2,14 @@ import Foundation
 
 /// Represents a recently played item from Music Assistant
 /// The API returns an ItemMapping which contains media_type and item details
-struct RecentlyPlayedItem: Identifiable, Codable, Hashable {
+struct RecentlyPlayedItem: Identifiable, Decodable, Hashable {
     let itemId: String
     let provider: String
     let name: String
     let mediaType: String
     let uri: String
-    let imageUrl: String?
+    private let metadata: MediaItemMetadata?
+    private let _imageUrl: String?
 
     // Optional nested item details (for tracks, albums, etc.)
     let artist: String?
@@ -17,14 +18,28 @@ struct RecentlyPlayedItem: Identifiable, Codable, Hashable {
 
     var id: String { "\(mediaType)_\(itemId)_\(provider)" }
 
+    /// Returns the image URL from metadata.images or direct image field
+    var imageUrl: String? {
+        // First try metadata.images array (like Album/Track models)
+        if let path = metadata?.images?.first(where: { $0.type == "thumb" })?.path {
+            return path
+        }
+        if let path = metadata?.images?.first?.path {
+            return path
+        }
+        // Fall back to direct image field
+        return _imageUrl
+    }
+
     enum CodingKeys: String, CodingKey {
         case itemId = "item_id"
         case provider
         case name
         case mediaType = "media_type"
         case uri
-        case imageUrl = "image"
-        case artist
+        case metadata
+        case _imageUrl = "image"
+        case artists
         case album
         case duration
     }
@@ -39,27 +54,36 @@ struct RecentlyPlayedItem: Identifiable, Codable, Hashable {
         mediaType = try container.decode(String.self, forKey: .mediaType)
         uri = try container.decode(String.self, forKey: .uri)
 
-        // Image can be nested or at root level
-        if let img = try? container.decode(String.self, forKey: .imageUrl) {
-            imageUrl = img
-        } else if let imgDict = try? container.decode([String: String].self, forKey: .imageUrl),
+        // Parse metadata for images
+        metadata = try? container.decodeIfPresent(MediaItemMetadata.self, forKey: .metadata)
+
+        // Image can also be at root level as string or dict
+        if let img = try? container.decode(String.self, forKey: ._imageUrl) {
+            _imageUrl = img
+        } else if let imgDict = try? container.decode([String: String].self, forKey: ._imageUrl),
                   let url = imgDict["url"] ?? imgDict["path"] {
-            imageUrl = url
+            _imageUrl = url
         } else {
-            imageUrl = nil
+            _imageUrl = nil
         }
 
         // Optional fields - try different keys for artist
-        if let artistStr = try? container.decode(String.self, forKey: .artist) {
-            artist = artistStr
-        } else if let artistDict = try? container.decode([String: Any].self, forKey: .artist) as? [String: String],
-                  let artistName = artistDict["name"] {
-            artist = artistName
+        // Artists can be an array of ArtistReference or a string
+        if let artistsArray = try? container.decode([ArtistReference].self, forKey: .artists) {
+            artist = artistsArray.map { $0.name }.joined(separator: ", ")
         } else {
             artist = nil
         }
 
-        album = try? container.decodeIfPresent(String.self, forKey: .album)
+        // Album can be an AlbumReference or a string
+        if let albumRef = try? container.decode(AlbumReference.self, forKey: .album) {
+            album = albumRef.name
+        } else if let albumStr = try? container.decode(String.self, forKey: .album) {
+            album = albumStr
+        } else {
+            album = nil
+        }
+
         duration = try? container.decodeIfPresent(TimeInterval.self, forKey: .duration)
     }
 
@@ -70,46 +94,10 @@ struct RecentlyPlayedItem: Identifiable, Codable, Hashable {
         self.name = name
         self.mediaType = mediaType
         self.uri = uri
-        self.imageUrl = imageUrl
+        self.metadata = nil
+        self._imageUrl = imageUrl
         self.artist = artist
         self.album = album
         self.duration = duration
-    }
-}
-
-// Helper extension to decode Any type
-extension KeyedDecodingContainer {
-    func decode(_ type: [String: Any].Type, forKey key: K) throws -> [String: Any] {
-        let container = try self.nestedContainer(keyedBy: JSONCodingKeys.self, forKey: key)
-        return try container.decode(type)
-    }
-}
-
-private struct JSONCodingKeys: CodingKey {
-    var stringValue: String
-    var intValue: Int?
-
-    init?(stringValue: String) { self.stringValue = stringValue }
-    init?(intValue: Int) {
-        self.stringValue = "\(intValue)"
-        self.intValue = intValue
-    }
-}
-
-extension KeyedDecodingContainer where K == JSONCodingKeys {
-    func decode(_ type: [String: Any].Type) throws -> [String: Any] {
-        var dict = [String: Any]()
-        for key in allKeys {
-            if let value = try? decode(String.self, forKey: key) {
-                dict[key.stringValue] = value
-            } else if let value = try? decode(Int.self, forKey: key) {
-                dict[key.stringValue] = value
-            } else if let value = try? decode(Double.self, forKey: key) {
-                dict[key.stringValue] = value
-            } else if let value = try? decode(Bool.self, forKey: key) {
-                dict[key.stringValue] = value
-            }
-        }
-        return dict
     }
 }

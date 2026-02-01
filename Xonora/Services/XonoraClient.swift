@@ -442,8 +442,30 @@ class XonoraClient: NSObject, ObservableObject {
 
         print("[XonoraClient] Received \(result.count) recently played items")
 
+        // Debug: Log first item to understand the structure
+        if let firstItem = result.first {
+            if let metadata = firstItem["metadata"] as? [String: Any],
+               let images = metadata["images"] as? [[String: Any]] {
+                print("[XonoraClient] First item has metadata.images: \(images.count) images")
+                if let firstImage = images.first {
+                    print("[XonoraClient] First image: \(firstImage)")
+                }
+            } else if let image = firstItem["image"] {
+                print("[XonoraClient] First item has image field: \(image)")
+            } else {
+                print("[XonoraClient] First item keys: \(firstItem.keys.sorted())")
+            }
+        }
+
         let resultData = try JSONSerialization.data(withJSONObject: result)
-        return (try? JSONDecoder().decode([RecentlyPlayedItem].self, from: resultData)) ?? []
+        let items = (try? JSONDecoder().decode([RecentlyPlayedItem].self, from: resultData)) ?? []
+
+        // Debug: Log parsed image URLs
+        if let firstParsed = items.first {
+            print("[XonoraClient] First parsed item imageUrl: \(firstParsed.imageUrl ?? "nil")")
+        }
+
+        return items
     }
 
     func fetchAlbumTracks(albumId: String, provider: String) async throws -> [Track] {
