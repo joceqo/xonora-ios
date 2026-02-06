@@ -442,30 +442,31 @@ class XonoraClient: NSObject, ObservableObject {
 
         print("[XonoraClient] Received \(result.count) recently played items")
 
-        // Debug: Log first item to understand the structure
+        // Debug: Dump first item structure
         if let firstItem = result.first {
-            if let metadata = firstItem["metadata"] as? [String: Any],
-               let images = metadata["images"] as? [[String: Any]] {
-                print("[XonoraClient] First item has metadata.images: \(images.count) images")
-                if let firstImage = images.first {
-                    print("[XonoraClient] First image: \(firstImage)")
+            print("[XonoraClient] First item keys: \(firstItem.keys.sorted())")
+            if let metadata = firstItem["metadata"] as? [String: Any] {
+                print("[XonoraClient] metadata keys: \(metadata.keys.sorted())")
+                if let images = metadata["images"] as? [[String: Any]], !images.isEmpty {
+                    print("[XonoraClient] metadata.images[\(images.count)]: \(images.first ?? [:])")
                 }
-            } else if let image = firstItem["image"] {
-                print("[XonoraClient] First item has image field: \(image)")
-            } else {
-                print("[XonoraClient] First item keys: \(firstItem.keys.sorted())")
+            }
+            if let image = firstItem["image"] {
+                print("[XonoraClient] direct image: \(image)")
             }
         }
 
         let resultData = try JSONSerialization.data(withJSONObject: result)
-        let items = (try? JSONDecoder().decode([RecentlyPlayedItem].self, from: resultData)) ?? []
-
-        // Debug: Log parsed image URLs
-        if let firstParsed = items.first {
-            print("[XonoraClient] First parsed item imageUrl: \(firstParsed.imageUrl ?? "nil")")
+        do {
+            let items = try JSONDecoder().decode([RecentlyPlayedItem].self, from: resultData)
+            if let firstParsed = items.first {
+                print("[XonoraClient] Parsed \(items.count) items, first imageUrl: \(firstParsed.imageUrl ?? "nil")")
+            }
+            return items
+        } catch {
+            print("[XonoraClient] Decode error: \(error)")
+            return []
         }
-
-        return items
     }
 
     func fetchAlbumTracks(albumId: String, provider: String) async throws -> [Track] {

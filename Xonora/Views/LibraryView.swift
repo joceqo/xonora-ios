@@ -49,6 +49,7 @@ struct LibraryView: View {
             if connected {
                 Task {
                     await libraryViewModel.loadLibrary()
+                    await libraryViewModel.loadRecentlyPlayed()
                 }
             }
         }

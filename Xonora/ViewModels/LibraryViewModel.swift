@@ -273,6 +273,10 @@ class LibraryViewModel: ObservableObject {
 
     func loadRecentlyPlayed() async {
         guard !isLoadingRecent else { return }
+        guard client.connectionState == .connected else {
+            print("[LibraryViewModel] Skipping recently played - not connected")
+            return
+        }
         isLoadingRecent = true
 
         do {

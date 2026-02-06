@@ -818,18 +818,41 @@ class PlayerManager: ObservableObject {
     private func sleepTimerFired() {
         print("[PlayerManager] Sleep timer fired - stopping playback")
 
-        // Stop playback on the server
-        Task {
-            try? await XonoraClient.shared.pause()
-        }
-
-        playbackState = .paused
-
-        // Clean up timer state
+        // Clean up timer state first
         sleepTimerUpdateTimer?.invalidate()
         sleepTimerUpdateTimer = nil
         sleepTimerEndTime = nil
         sleepTimerRemaining = 0
+
+        // Stop playback on the server with retries
+        Task {
+            await stopPlaybackWithRetry(maxAttempts: 3)
+        }
+
+        playbackState = .paused
+    }
+
+    private func stopPlaybackWithRetry(maxAttempts: Int) async {
+        for attempt in 1...maxAttempts {
+            do {
+                try await XonoraClient.shared.stop()
+                print("[PlayerManager] Sleep timer: stopped (attempt \(attempt))")
+                return
+            } catch {
+                print("[PlayerManager] Sleep timer: stop failed \(attempt)/\(maxAttempts) - \(error)")
+                do {
+                    try await XonoraClient.shared.pause()
+                    print("[PlayerManager] Sleep timer: paused (attempt \(attempt))")
+                    return
+                } catch {
+                    print("[PlayerManager] Sleep timer: pause failed \(attempt)/\(maxAttempts)")
+                }
+                if attempt < maxAttempts {
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                }
+            }
+        }
+        print("[PlayerManager] Sleep timer: failed after \(maxAttempts) attempts")
     }
 
     // MARK: - Now Playing Info

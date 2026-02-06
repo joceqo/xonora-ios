@@ -57,12 +57,11 @@ struct RecentlyPlayedItem: Identifiable, Decodable, Hashable {
         // Parse metadata for images
         metadata = try? container.decodeIfPresent(MediaItemMetadata.self, forKey: .metadata)
 
-        // Image can also be at root level as string or dict
+        // Image can be at root level as string or MediaItemImage object
         if let img = try? container.decode(String.self, forKey: ._imageUrl) {
             _imageUrl = img
-        } else if let imgDict = try? container.decode([String: String].self, forKey: ._imageUrl),
-                  let url = imgDict["url"] ?? imgDict["path"] {
-            _imageUrl = url
+        } else if let imgObj = try? container.decode(MediaItemImage.self, forKey: ._imageUrl) {
+            _imageUrl = imgObj.path
         } else {
             _imageUrl = nil
         }
